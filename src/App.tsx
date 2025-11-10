@@ -5,7 +5,7 @@ function App() {
 
   return (
     <Router>
-      <div>
+      <div className="relative">
         <CustomCursor />
         <Header />
         <Routes>

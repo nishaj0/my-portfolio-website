@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 * {
-  /* cursor: none !important; */
+  cursor: none !important;
 }
 
 body {
