@@ -1,14 +1,21 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 function CustomCursor() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
 
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
+
+  const springConfig = { damping: 28, stiffness: 500, mass: 0.5 };
+  const cursorXSpring = useSpring(cursorX, springConfig);
+  const cursorYSpring = useSpring(cursorY, springConfig);
+
   useEffect(() => {
     const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
     };
 
     const handleMouseOver = (e: MouseEvent) => {
@@ -44,19 +51,24 @@ function CustomCursor() {
   }, []);
   return (
     <>
-      {/* Main cursor dot with glow */}
+      {/* main cursor dot */}
       <motion.div
         className="fixed top-0 left-0 pointer-events-none z-50"
+        style={{
+          x: cursorXSpring,
+          y: cursorYSpring,
+          translateX: '-10px',
+          translateY: '-10px',
+        }}
         animate={{
-          x: mousePosition.x - 10,
-          y: mousePosition.y - 10,
           scale: isClicking ? 0.8 : isHovering ? 1.5 : 1,
         }}
         transition={{
-          type: 'spring',
-          stiffness: 500,
-          damping: 28,
-          mass: 0.5,
+          scale: {
+            type: 'spring',
+            stiffness: 500,
+            damping: 28,
+          },
         }}
       >
         <div className="relative">
@@ -65,31 +77,45 @@ function CustomCursor() {
         </div>
       </motion.div>
 
-      {/* Outer ring with fancy animation */}
+      {/* Outer ring with animation */}
       <motion.div
         className="fixed top-0 left-0 pointer-events-none z-50"
+        style={{
+          x: useSpring(cursorX, { damping: 15, stiffness: 150, mass: 0.1 }),
+          y: useSpring(cursorY, { damping: 15, stiffness: 150, mass: 0.1 }),
+          translateX: '-20px',
+          translateY: '-20px',
+        }}
         animate={{
-          x: mousePosition.x - 20,
-          y: mousePosition.y - 20,
           scale: isClicking ? 0.7 : isHovering ? 2 : 1,
           rotate: isHovering ? 90 : 0,
         }}
         transition={{
-          type: 'spring',
-          stiffness: 150,
-          damping: 15,
-          mass: 0.1,
+          scale: {
+            type: 'spring',
+            stiffness: 150,
+            damping: 15,
+          },
+          rotate: {
+            type: 'spring',
+            stiffness: 150,
+            damping: 15,
+          },
         }}
       >
         <div className="w-10 h-10 border-2 border-black rounded-full" />
       </motion.div>
 
-      {/* Additional decorative ring */}
+      {/* Additional shadow decorative ring */}
       <motion.div
         className="fixed top-0 left-0 pointer-events-none z-50"
+        style={{
+          x: useSpring(cursorX, { damping: 20, stiffness: 100 }),
+          y: useSpring(cursorY, { damping: 20, stiffness: 100 }),
+          translateX: '-25px',
+          translateY: '-25px',
+        }}
         animate={{
-          x: mousePosition.x - 25,
-          y: mousePosition.y - 25,
           scale: isHovering ? 1.5 : 0.8,
           opacity: isHovering ? 1 : 0.3,
         }}
@@ -103,6 +129,6 @@ function CustomCursor() {
       </motion.div>
     </>
   );
-}
+};
 
 export default CustomCursor

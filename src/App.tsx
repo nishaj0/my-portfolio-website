@@ -12,8 +12,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/projects" element={<ProjectsPage />} />
         </Routes>
-        <footer>
-          <div>
+        <footer className="py-8 text-center text-sm text-gray-600 border-t border-gray-200">
+          <div className="container mx-auto px-6">
             <p>© 2025 nishaj. All rights reserved.</p>
           </div>
         </footer>
