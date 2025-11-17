@@ -1,3 +1,5 @@
+'use client';
+
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
@@ -58,7 +60,7 @@ function About() {
                 animate={isInView ? { opacity: 1 } : { opacity: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                I'm a software developer working as a full-stack dev, exploring new ideas and technologies to create meaningful things.
+                I&apos;m a software developer working as a full-stack dev, exploring new ideas and technologies to create meaningful things.
               </motion.p>
               <motion.p 
                 className="text-lg md:text-xl text-gray-600 leading-relaxed"

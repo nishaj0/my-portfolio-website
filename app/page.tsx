@@ -1,6 +1,6 @@
-import { Hero, About, Contact, Projects } from "../components"
+import { Hero, About, Contact, Projects } from "@/src/components";
 
-function HomePage() {
+export default function HomePage() {
   return (
     <main>
       <Hero />
@@ -8,7 +8,5 @@ function HomePage() {
       <Projects limit={3} />
       <Contact />
     </main>
-  )
+  );
 }
-
-export default HomePage

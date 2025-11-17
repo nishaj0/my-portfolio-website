@@ -1,3 +1,5 @@
+'use client';
+
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 
@@ -32,7 +34,7 @@ function Hero() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
-              Hi, I'm Nishaj
+              Hi, I&apos;m Nishaj
             </motion.span>
             <br />
             <motion.span

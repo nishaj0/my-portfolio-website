@@ -1,3 +1,5 @@
+'use client';
+
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
@@ -50,7 +52,7 @@ function Contact() {
               animate={isInView ? { rotateY: 0 } : { rotateY: 90 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              Let's Work
+              Let&apos;s Work
             </motion.span>
             <br />
             <motion.span 
@@ -75,7 +77,7 @@ function Contact() {
               animate={isInView ? { opacity: 1 } : { opacity: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              Have a project in mind? Let's create something amazing together.
+              Have a project in mind? Let&apos;s create something amazing together.
             </motion.p>
             
             <motion.a

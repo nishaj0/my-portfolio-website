@@ -1,7 +1,9 @@
-import { motion } from 'framer-motion';
-import { Projects } from '../components';
+'use client';
 
-function ProjectsPage() {
+import { motion } from 'framer-motion';
+import { Projects } from '@/src/components';
+
+export default function ProjectsPage() {
   return (
     <main className="pt-24">
       <div className="container mx-auto px-6 md:px-12 lg:px-24 mb-12">
@@ -14,14 +16,11 @@ function ProjectsPage() {
             All <span className="text-outline">Projects</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 max-w-3xl">
-            A collection of the projects I’ve worked on, built while learning and experimenting with different technologies.
+            A collection of the projects I&apos;ve worked on, built while learning and experimenting with different technologies.
           </p>
         </motion.div>
       </div>
       <Projects showViewMore={false} />
     </main>
   );
-};
-
-
-export default ProjectsPage
+}
