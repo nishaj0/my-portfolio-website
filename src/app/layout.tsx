@@ -23,9 +23,9 @@ export const metadata: Metadata = {
     "Web Design",
     "UI/UX Developer"
   ],
-  authors: [{ name: "Muhammed Nishaj M", url: "https://github.com/nishaj0" }],
-  creator: "Muhammed Nishaj M",
-  publisher: "Muhammed Nishaj M",
+  authors: [{ name: "Nishaj M", url: "https://github.com/nishaj0" }],
+  creator: "Nishaj M",
+  publisher: "Nishaj M",
   formatDetection: {
     email: false,
     address: false,
@@ -82,8 +82,8 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: "Muhammed Nishaj M",
-    alternateName: ["Nishaj M", "nishaj0"],
+    name: "Nishaj M",
+    alternateName: ["Muhammed Nishaj M", "nishaj0"],
     url: "https://nishaj0.github.io/my-portfolio-website",
     jobTitle: "Full Stack Developer",
     description: "Full Stack Developer and Designer specializing in modern web technologies",
