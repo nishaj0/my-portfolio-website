@@ -1,11 +1,14 @@
+'use client';
+
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,7 +41,7 @@ function Header() {
     >
       <div className="container mx-auto px-6 md:px-12 lg:px-24">
         <div className="flex justify-between items-center">
-          <Link to="/">
+          <Link href="/">
             <motion.div
               className="text-2xl font-bold"
               whileHover={{ scale: 1.05 }}
@@ -62,7 +65,7 @@ function Header() {
                   {link.name}
                 </motion.a>
               ) : (
-                <Link key={link.name} to={link.href}>
+                <Link key={link.name} href={link.href}>
                   <motion.div
                     className="text-lg hover:opacity-60 transition-opacity"
                     initial={{ opacity: 0, y: -20 }}

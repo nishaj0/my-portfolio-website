@@ -1,7 +1,9 @@
+'use client';
+
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 export const projects = [
   {
@@ -163,7 +165,7 @@ function Projects({ limit, showViewMore = true }: ProjectsProps) {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <Link to="/projects">
+            <Link href="/projects">
               <motion.button
                 className="px-12 py-6 border-2 border-black text-xl font-bold hover:bg-black hover:text-white transition-all duration-300 relative overflow-hidden group"
                 whileHover={{ scale: 1.05 }}
