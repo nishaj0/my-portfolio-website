@@ -5,7 +5,7 @@ function HomePage() {
     <main>
       <Hero />
       <About />
-      <Projects /> {/* add a limit prop (maybe 3) to show only a few projects */}
+      <Projects limit={3} />
       <Contact />
     </main>
   )
