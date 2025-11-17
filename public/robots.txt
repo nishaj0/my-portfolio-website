@@ -4,4 +4,4 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://nishaj0.github.io/my-portfolio-website/sitemap.xml
+Sitemap: https://nishaj.me/sitemap.xml

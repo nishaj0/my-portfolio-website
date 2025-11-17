@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.SITE_URL || 'https://nishaj0.github.io/my-portfolio-website',
+  siteUrl: process.env.SITE_URL || 'https://nishaj.me',
   generateRobotsTxt: false, // We created a custom robots.txt
   generateIndexSitemap: false, // Not needed for small sites
   changefreq: 'weekly',

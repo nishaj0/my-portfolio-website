@@ -31,14 +31,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://nishaj0.github.io/my-portfolio-website"),
+  metadataBase: new URL("https://nishaj.me"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "Nishaj M - Full Stack Developer & Designer Portfolio",
     description: "Portfolio of Muhammed Nishaj M showcasing web development projects and skills",
-    url: "https://nishaj0.github.io/my-portfolio-website",
+    url: "https://nishaj.me",
     siteName: "Nishaj M Portfolio",
     locale: "en_US",
     type: "website",
@@ -84,7 +84,7 @@ export default function RootLayout({
     "@type": "Person",
     name: "Nishaj M",
     alternateName: ["Muhammed Nishaj M", "nishaj0"],
-    url: "https://nishaj0.github.io/my-portfolio-website",
+    url: "https://nishaj.me",
     jobTitle: "Full Stack Developer",
     description: "Full Stack Developer and Designer specializing in modern web technologies",
     sameAs: [

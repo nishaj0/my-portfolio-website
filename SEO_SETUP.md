@@ -101,7 +101,7 @@ Use these tools to validate your SEO setup:
 
 2. **Add Your Property**:
    - Click "Add Property"
-   - Enter your site URL: `https://nishaj0.github.io/my-portfolio-website`
+   - Enter your site URL: `https://nishaj.me`
 
 3. **Verify Ownership**:
    - Choose "HTML tag" method

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Projects - Nishaj M Portfolio",
     description: "Explore all projects by Muhammed Nishaj M showcasing web development expertise",
-    url: "https://nishaj0.github.io/my-portfolio-website/projects",
+    url: "https://nishaj.me/projects",
   },
   twitter: {
     title: "Projects - Nishaj M Portfolio",
