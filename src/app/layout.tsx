@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: "Nishaj M - Full Stack Developer & Designer Portfolio",
     template: "%s | Nishaj M"
   },
-  description: "Portfolio of Muhammed Nishaj M (nishaj0) - Full Stack Developer showcasing web development projects, skills, and innovative solutions. Explore my work in React, Next.js, and modern web technologies.",
+  description: "Portfolio of Nishaj M (nishaj0) - Full Stack Developer showcasing web development projects, skills, and innovative solutions. Explore my work in React, Next.js, and modern web technologies.",
   keywords: [
     "nishaj0",
     "Nishaj M",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Nishaj M - Full Stack Developer & Designer Portfolio",
-    description: "Portfolio of Muhammed Nishaj M showcasing web development projects and skills",
+    description: "Portfolio of Nishaj M showcasing web development projects and skills",
     url: "https://nishaj.me",
     siteName: "Nishaj M Portfolio",
     locale: "en_US",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Nishaj M - Full Stack Developer & Designer Portfolio",
-    description: "Portfolio of Muhammed Nishaj M showcasing web development projects and skills",
+    description: "Portfolio of Nishaj M showcasing web development projects and skills",
     images: ["/og-image.png"],
     creator: "@nishaj0",
   },
