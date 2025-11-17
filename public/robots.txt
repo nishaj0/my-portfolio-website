@@ -1,0 +1,7 @@
+# robots.txt for nishaj0 portfolio website
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://nishaj.me/sitemap.xml

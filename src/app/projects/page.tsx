@@ -3,6 +3,9 @@
 import { motion } from 'framer-motion';
 import { Projects } from '../../components';
 
+// Metadata is added via layout in Next.js App Router
+// For dynamic metadata on client components, we use a separate metadata export file
+
 export default function ProjectsPage() {
   return (
     <main className="pt-24">
