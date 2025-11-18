@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'framer-motion';
+import Link from 'next/link';
 import { useRef } from 'react';
 
 function About() {
@@ -15,10 +16,10 @@ function About() {
 
   const x = useTransform(scrollYProgress, [0, 0.5, 1], [-100, 0, 100]);
 
-  const skills = [
-    'Go', 'TypeScript', 'JavaScript',
-    'Postgres', 'MySQL', 'Node.js', 'MongoDB',
-    'Next.js',"React", "n8n"
+  const mainSkills = [
+    'Go', 'TypeScript', 'PostgreSQL', 
+    'MySQL', 'Node.js', 'MongoDB',
+    'Next.js', "React", "n8n"
   ];
 
   return (
@@ -79,7 +80,7 @@ function About() {
             >
               <h3 className="text-2xl font-bold mb-6">Skills & Technologies</h3>
               <div className="grid grid-cols-2 gap-4">
-                {skills.map((skill, index) => (
+                {mainSkills.map((skill, index) => (
                   <motion.div
                     key={skill}
                     initial={{ opacity: 0, scale: 0, rotate: -180 }}
@@ -97,6 +98,24 @@ function About() {
                     {skill}
                   </motion.div>
                 ))}
+                {/* add button to to go to more skills page */}
+                <Link href="/skills" passHref>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0, rotate: -180 }}
+                    animate={isInView ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0, rotate: -180 }}
+                    transition={{ 
+                      duration: 0.5,
+                      delay: 0.6 + mainSkills.length * 0.1,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 20
+                    }}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="border-2 font-bold border-black px-4 py-3 text-center hover:bg-black hover:text-white transition-colors duration-300 cursor-pointer"
+                  >
+                    More...
+                  </motion.div>
+                </Link>
               </div>
             </motion.div>
           </div>
