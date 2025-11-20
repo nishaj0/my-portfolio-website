@@ -1,0 +1,24 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
+export default function SkillsPage() {
+  return (
+    <main className="pt-24">
+      <div className="container mx-auto px-6 md:px-12 lg:px-24 mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 className="text-6xl md:text-8xl font-bold mb-6">
+            All <span className="text-outline">Skills</span>
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-600 max-w-3xl">
+            list of technologies and skills I have acquired and worked with over time.
+          </p>
+        </motion.div>
+      </div>
+    </main>
+  );
+}
