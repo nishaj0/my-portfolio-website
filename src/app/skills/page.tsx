@@ -149,7 +149,7 @@ export default function SkillsPage() {
                   className="group"
                 >
                   <div className="flex items-center justify-between p-3 border border-black bg-white hover:bg-black hover:text-white transition-all duration-300">
-                    <div className="flex h-12 w-12 items-center justify-center border border-black bg-white">
+                    <div className="flex h-12 w-12 items-center justify-center border border-black bg-gray-50">
                       <Image 
                       src={skill.icon} 
                       alt={`${skill.name} icon`} 
