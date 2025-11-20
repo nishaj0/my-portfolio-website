@@ -148,14 +148,14 @@ export default function SkillsPage() {
                   }}
                   className="group"
                 >
-                  <div className="flex items-center justify-between p-3 border-2 border-black bg-white hover:bg-black hover:text-white transition-all duration-300">
-                    <div className="flex h-12 w-12 items-center justify-center border border-black bg-black group-hover:bg-white group-hover:border-white">
+                  <div className="flex items-center justify-between p-3 border border-black bg-white hover:bg-black hover:text-white transition-all duration-300">
+                    <div className="flex h-12 w-12 items-center justify-center border border-black bg-white">
                       <Image 
-                        src={skill.icon} 
-                        alt={`${skill.name} icon`} 
-                        width={32} 
-                        height={32}
-                        className="filter invert group-hover:invert-0 transition-all duration-300"
+                      src={skill.icon} 
+                      alt={`${skill.name} icon`} 
+                      width={32} 
+                      height={32}
+                      className="filter grayscale group-hover:grayscale-0 transition-all duration-300"
                       />
                     </div>
                     <p className="text-sm font-semibold uppercase tracking-wide">
