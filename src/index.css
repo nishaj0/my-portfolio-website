@@ -22,3 +22,11 @@ html {
   -webkit-text-fill-color: transparent;
   paint-order: stroke fill;
 }
+
+.grayscale {
+  filter: grayscale(100%);
+}
+
+.grayscale-0 {
+  filter: grayscale(0%);
+}
