@@ -9,6 +9,7 @@ import { projects } from '../../../data/projects';
 type Project = typeof projects[0];
 
 export default function ProjectContent({ project }: { project: Project }) {
+  const headerRef = useRef(null);
   const imageRef = useRef(null);
   const detailsRef = useRef(null);
   const linksRef = useRef(null);
@@ -21,6 +22,7 @@ export default function ProjectContent({ project }: { project: Project }) {
   const [showFullColor, setShowFullColor] = useState(false);
   const [revealRadius, setRevealRadius] = useState(0);
 
+  const headerInView = useInView(headerRef, { once: false, margin: "0px" });
   const imageInView = useInView(imageRef, { once: false, margin: "-100px" });
   const detailsInView = useInView(detailsRef, { once: false, margin: "-100px" });
   const linksInView = useInView(linksRef, { once: false, margin: "-100px" });
@@ -97,8 +99,9 @@ export default function ProjectContent({ project }: { project: Project }) {
       <div className="container mx-auto px-6 md:px-12 lg:px-24">
         {/* Header */}
         <motion.div
+          ref={headerRef}
           initial={{ opacity: 0, y: 30, rotateX: 10 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0 }}
+          animate={headerInView ? { opacity: 1, y: 0, rotateX: 0 } : { opacity: 0, y: 30, rotateX: 10 }}
           transition={{ duration: 0.8, type: "spring", stiffness: 50 }}
           className="mb-20"
         >
