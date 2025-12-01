@@ -1,13 +1,85 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRef, useState, useEffect } from 'react';
 import { projects } from '../../../data/projects';
 
 type Project = typeof projects[0];
 
 export default function ProjectContent({ project }: { project: Project }) {
+  const imageRef = useRef(null);
+  const detailsRef = useRef(null);
+  const linksRef = useRef(null);
+  const moreProjectsRef = useRef(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
+  const [isHovering, setIsHovering] = useState(false);
+  const [showFullColor, setShowFullColor] = useState(false);
+  const [revealRadius, setRevealRadius] = useState(0);
+
+  const imageInView = useInView(imageRef, { once: false, margin: "-100px" });
+  const detailsInView = useInView(detailsRef, { once: false, margin: "-100px" });
+  const linksInView = useInView(linksRef, { once: false, margin: "-100px" });
+  const moreProjectsInView = useInView(moreProjectsRef, { once: false, margin: "-100px" });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageContainerRef.current) return;
+    const rect = imageContainerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setMousePosition({ x, y });
+    
+    // Show small circle immediately
+    if (!isHovering) {
+      setIsHovering(true);
+      setRevealRadius(8); // Small circle following cursor
+    }
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Set initial position
+    if (imageContainerRef.current) {
+      const rect = imageContainerRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setMousePosition({ x, y });
+    }
+    
+    setIsHovering(true);
+    setRevealRadius(8); // Start with small circle
+    
+    // After 500ms, expand to full color
+    hoverTimeoutRef.current = setTimeout(() => {
+      setShowFullColor(true);
+      setRevealRadius(150);
+    }, 500);
+  };
+
+  const handleMouseLeave = () => {
+    // Clear timeout if leaving before 500ms
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    
+    setIsHovering(false);
+    setShowFullColor(false);
+    setRevealRadius(0);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <main className="relative min-h-screen pt-24 pb-32 overflow-hidden bg-white">
       {/* Rotating decorative elements */}
@@ -50,26 +122,46 @@ export default function ProjectContent({ project }: { project: Project }) {
 
         {/* Project Image */}
         <motion.div
+          ref={imageRef}
           initial={{ opacity: 0, y: 100, rotateX: 20 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, type: "spring", stiffness: 50 }}
+          animate={imageInView ? { opacity: 1, y: 0, rotateX: 0 } : { opacity: 0, y: 100, rotateX: 20 }}
+          transition={{ duration: 0.8, type: "spring", stiffness: 50 }}
           className="mb-24 relative group"
         >
-          <div className="border-2 border-black overflow-hidden aspect-video relative">
+          <div 
+            ref={imageContainerRef}
+            className="border-2 border-black overflow-hidden aspect-video relative cursor-pointer"
+            onMouseMove={handleMouseMove}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            {/* Grayscale image - bottom layer */}
             <Image
               src={project.image}
               alt={project.title}
               fill
+              className="object-cover"
               style={{ filter: 'grayscale(100%)' }}
-              className="object-cover group-hover:grayscale-0 transition-all duration-500"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.filter = 'grayscale(0%)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.filter = 'grayscale(100%)';
-              }}
               priority
             />
+            
+            {/* Colored image - top layer with circular reveal */}
+            <div
+              className="absolute inset-0"
+              style={{
+                clipPath: `circle(${revealRadius}% at ${mousePosition.x}% ${mousePosition.y}%)`,
+                transition: showFullColor 
+                  ? 'clip-path 0.8s cubic-bezier(0.4, 0, 0.2, 1)' 
+                  : 'clip-path 0.15s ease-out',
+              }}
+            >
+              <Image
+                src={project.image}
+                alt={project.title}
+                fill
+                className="object-cover"
+              />
+            </div>
           </div>
         </motion.div>
 
@@ -77,9 +169,10 @@ export default function ProjectContent({ project }: { project: Project }) {
         <div className="space-y-16 mb-24">
           {/* Description Section */}
           <motion.div
+            ref={detailsRef}
             initial={{ opacity: 0, y: 50, rotate: -5 }}
-            animate={{ opacity: 1, y: 0, rotate: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, type: "spring", stiffness: 50 }}
+            animate={detailsInView ? { opacity: 1, y: 0, rotate: 0 } : { opacity: 0, y: 50, rotate: -5 }}
+            transition={{ duration: 0.8, type: "spring", stiffness: 50 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-8">
               About Project
@@ -96,10 +189,10 @@ export default function ProjectContent({ project }: { project: Project }) {
                   <motion.span
                     key={tag}
                     initial={{ opacity: 0, scale: 0, rotate: -180 }}
-                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    animate={detailsInView ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0, rotate: -180 }}
                     transition={{ 
                       duration: 0.5, 
-                      delay: 0.5 + index * 0.1,
+                      delay: index * 0.1,
                       type: "spring",
                       stiffness: 200,
                       damping: 20
@@ -116,9 +209,10 @@ export default function ProjectContent({ project }: { project: Project }) {
 
           {/* Links Section */}
           <motion.div
+            ref={linksRef}
             initial={{ opacity: 0, y: 50, rotate: 5 }}
-            animate={{ opacity: 1, y: 0, rotate: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, type: "spring", stiffness: 50 }}
+            animate={linksInView ? { opacity: 1, y: 0, rotate: 0 } : { opacity: 0, y: 50, rotate: 5 }}
+            transition={{ duration: 0.8, type: "spring", stiffness: 50 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-8">
               Project Links
@@ -131,10 +225,9 @@ export default function ProjectContent({ project }: { project: Project }) {
                   rel="noopener noreferrer"
                   className="block"
                   initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  animate={linksInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                   transition={{ 
-                    duration: 0.6, 
-                    delay: 0.5,
+                    duration: 0.6,
                     type: "spring",
                     stiffness: 100,
                     damping: 15
@@ -161,10 +254,10 @@ export default function ProjectContent({ project }: { project: Project }) {
                   rel="noopener noreferrer"
                   className="block"
                   initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  animate={linksInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                   transition={{ 
                     duration: 0.6, 
-                    delay: 0.6,
+                    delay: 0.1,
                     type: "spring",
                     stiffness: 100,
                     damping: 15
@@ -191,10 +284,10 @@ export default function ProjectContent({ project }: { project: Project }) {
                   rel="noopener noreferrer"
                   className="block"
                   initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  animate={linksInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                   transition={{ 
                     duration: 0.6, 
-                    delay: 0.7,
+                    delay: 0.2,
                     type: "spring",
                     stiffness: 100,
                     damping: 15
@@ -219,9 +312,10 @@ export default function ProjectContent({ project }: { project: Project }) {
 
         {/* Navigation to other projects */}
         <motion.div
+          ref={moreProjectsRef}
           initial={{ opacity: 0, y: 50, rotateX: 20 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, type: "spring", stiffness: 50 }}
+          animate={moreProjectsInView ? { opacity: 1, y: 0, rotateX: 0 } : { opacity: 0, y: 50, rotateX: 20 }}
+          transition={{ duration: 0.8, type: "spring", stiffness: 50 }}
           className="border-t-2 border-black pt-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-12">
@@ -235,10 +329,10 @@ export default function ProjectContent({ project }: { project: Project }) {
                 <Link key={otherProject.slug} href={`/projects/${otherProject.slug}`}>
                   <motion.div
                     initial={{ opacity: 0, scale: 0, rotate: -180 }}
-                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    animate={moreProjectsInView ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0, rotate: -180 }}
                     transition={{ 
                       duration: 0.5, 
-                      delay: 0.6 + index * 0.1,
+                      delay: index * 0.1,
                       type: "spring",
                       stiffness: 200,
                       damping: 20
