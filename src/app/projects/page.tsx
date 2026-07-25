@@ -1,29 +1,46 @@
-'use client';
+import type { Metadata } from "next";
+import { projects } from "../../data/projects";
+import ProjectsPageContent from "./ProjectsPageContent";
 
-import { motion } from 'framer-motion';
-import { Projects } from '../../components';
+const title = "Projects";
+const description = "Explore selected full-stack projects by Nishaj M, including web applications, automation tools, community products, and interactive 3D experiments.";
 
-// Metadata is added via layout in Next.js App Router
-// For dynamic metadata on client components, we use a separate metadata export file
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: { canonical: "/projects" },
+  openGraph: { title, description, url: "/projects", type: "website" },
+  twitter: { title, description },
+};
 
 export default function ProjectsPage() {
+  const projectsJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Selected Projects by Nishaj M",
+    description,
+    url: "https://nishaj.me/projects",
+    isPartOf: { "@id": "https://nishaj.me/#website" },
+    about: { "@id": "https://nishaj.me/#person" },
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: projects.map((project, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "CreativeWork",
+          name: project.title,
+          description: project.description,
+          keywords: project.tags.join(", "),
+        },
+      })),
+    },
+  };
+
   return (
-    <main className="pt-24">
-      <div className="container mx-auto px-6 md:px-12 lg:px-24 mb-12">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-6xl md:text-8xl font-bold mb-6">
-            All <span className="text-outline">Projects</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 max-w-3xl">
-            A collection of the projects I've worked on, built while learning and experimenting with different technologies.
-          </p>
-        </motion.div>
-      </div>
-      <Projects showViewMore={false} />
-    </main>
+    <>
+      <ProjectsPageContent />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(projectsJsonLd) }} />
+    </>
   );
 }

@@ -2,15 +2,16 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Skills",
-  description: "all skills by Nishaj M (nishaj0) ",
+  description: "Explore Nishaj M's full-stack development skills across languages, frameworks, databases, cloud platforms, and AI tools.",
+  alternates: { canonical: "/skills" },
   openGraph: {
-    title: "Skills - Nishaj M Portfolio",
-    description: "Explore all skills by Nishaj M showcasing web development expertise",
-    url: "https://nishaj.me/skills",
+    title: "Skills",
+    description: "Explore Nishaj M's full-stack development skills across languages, frameworks, databases, cloud platforms, and AI tools.",
+    url: "/skills",
   },
   twitter: {
-    title: "Skills - Nishaj M Portfolio",
-    description: "Explore all skills by Nishaj M showcasing web development expertise",
+    title: "Skills",
+    description: "Explore Nishaj M's full-stack development skills across languages, frameworks, databases, cloud platforms, and AI tools.",
   },
 };
 

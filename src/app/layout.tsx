@@ -5,9 +5,12 @@ import { Header, CustomCursor } from "../components";
 export const metadata: Metadata = {
   title: {
     default: "Nishaj M - Full Stack Developer & Designer Portfolio",
-    template: "%s | Nishaj M"
+    template: "%s | Nishaj M",
   },
-  description: "Portfolio of Nishaj M (nishaj0) - Full Stack Developer showcasing web development projects, skills, and innovative solutions. Explore my work in React, Next.js, and modern web technologies.",
+  description: "Nishaj M is a full-stack software developer and designer building web applications, automation, and interactive experiences.",
+  applicationName: "Nishaj M Portfolio",
+  category: "portfolio",
+  referrer: "origin-when-cross-origin",
   keywords: [
     "nishaj0",
     "Nishaj M",
@@ -32,30 +35,18 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL("https://nishaj.me"),
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     title: "Nishaj M - Full Stack Developer & Designer Portfolio",
-    description: "Portfolio of Nishaj M showcasing web development projects and skills",
-    url: "https://nishaj.me",
+    description: "A portfolio of full-stack projects, skills, and experiments by Nishaj M.",
+    url: "/",
     siteName: "Nishaj M Portfolio",
     locale: "en_US",
     type: "website",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Nishaj M Portfolio Preview",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Nishaj M - Full Stack Developer & Designer Portfolio",
-    description: "Portfolio of Nishaj M showcasing web development projects and skills",
-    images: ["/og-image.png"],
+    description: "A portfolio of full-stack projects, skills, and experiments by Nishaj M.",
     creator: "@nishaj0",
   },
   robots: {
@@ -69,9 +60,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "google-site-verification-code", // User should replace with actual verification code
-  },
 };
 
 export default function RootLayout({
@@ -81,25 +69,33 @@ export default function RootLayout({
 }>) {
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: "Nishaj M",
-    alternateName: ["Muhammed Nishaj M", "nishaj0"],
-    url: "https://nishaj.me",
-    jobTitle: "Full Stack Developer",
-    description: "Full Stack Developer and Designer specializing in modern web technologies",
-    sameAs: [
-      "https://github.com/nishaj0",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://nishaj.me/#person",
+        name: "Nishaj M",
+        alternateName: ["Muhammed Nishaj M", "nishaj0"],
+        url: "https://nishaj.me",
+        email: "njnishaj0@gmail.com",
+        jobTitle: "Full Stack Developer",
+        description: "Full-stack software developer and designer building web applications, automation, and interactive experiences.",
+        sameAs: [
+          "https://github.com/nishaj0",
+          "https://www.linkedin.com/in/nishaj0/",
+          "https://x.com/nishaj0",
+        ],
+        knowsAbout: ["Web Development", "React", "Next.js", "JavaScript", "TypeScript", "Go", "Node.js", "PostgreSQL", "Full Stack Development"],
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://nishaj.me/#website",
+        name: "Nishaj M Portfolio",
+        url: "https://nishaj.me",
+        description: "Portfolio of Nishaj M, a full-stack software developer and designer.",
+        inLanguage: "en",
+        author: { "@id": "https://nishaj.me/#person" },
+      },
     ],
-    knowsAbout: [
-      "Web Development",
-      "React",
-      "Next.js",
-      "JavaScript",
-      "TypeScript",
-      "Frontend Development",
-      "Backend Development",
-      "Full Stack Development"
-    ]
   };
 
   return (
