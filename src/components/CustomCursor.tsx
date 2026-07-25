@@ -55,7 +55,7 @@ function CustomCursor() {
     <>
       {/* main cursor dot */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-50"
+        className="fixed top-0 left-0 pointer-events-none z-[60] mix-blend-difference"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
@@ -74,14 +74,14 @@ function CustomCursor() {
         }}
       >
         <div className="relative">
-          <div className="w-5 h-5 bg-black rounded-full" />
-          <div className="absolute inset-0 w-5 h-5 bg-black rounded-full blur-md opacity-50" />
+          <div className="w-5 h-5 bg-white rounded-full" />
+          <div className="absolute inset-0 w-5 h-5 bg-white rounded-full blur-md opacity-50" />
         </div>
       </motion.div>
 
       {/* Outer ring with animation */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-50"
+        className="fixed top-0 left-0 pointer-events-none z-[60] mix-blend-difference"
         style={{
           x: useSpring(cursorX, { damping: 15, stiffness: 150, mass: 0.1 }),
           y: useSpring(cursorY, { damping: 15, stiffness: 150, mass: 0.1 }),
@@ -105,12 +105,12 @@ function CustomCursor() {
           },
         }}
       >
-        <div className="w-10 h-10 border-2 border-black rounded-full" />
+        <div className="w-10 h-10 border-2 border-white rounded-full" />
       </motion.div>
 
       {/* Additional shadow decorative ring */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-50"
+        className="fixed top-0 left-0 pointer-events-none z-[60] mix-blend-difference"
         style={{
           x: useSpring(cursorX, { damping: 20, stiffness: 100 }),
           y: useSpring(cursorY, { damping: 20, stiffness: 100 }),
@@ -127,7 +127,7 @@ function CustomCursor() {
           damping: 20,
         }}
       >
-        <div className="w-12 h-12 border border-black rounded-full opacity-50" />
+        <div className="w-12 h-12 border border-white rounded-full opacity-50" />
       </motion.div>
     </>
   );
