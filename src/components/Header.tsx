@@ -25,6 +25,7 @@ function Header() {
       { name: 'Work', href: '/projects', isHash: false },
       { name: 'Skills', href: '/skills', isHash: false },
       { name: 'Contact', href: '#contact', isHash: true },
+      { name: 'Play', href: '/play', isHash: false },
     ]
     : [
       { name: 'Home', href: '/', isHash: false },
@@ -32,6 +33,7 @@ function Header() {
       { name: 'Work', href: '/projects', isHash: false },
       { name: 'Skills', href: '/skills', isHash: false },
       { name: 'Contact', href: '/#contact', isHash: false },
+      { name: 'Play', href: '/play', isHash: false },
     ];
 
   return (
@@ -82,14 +84,20 @@ function Header() {
             ))}
           </nav>
 
-          <motion.button
-            className="md:hidden w-8 h-8 flex flex-col justify-center gap-1.5"
-            whileTap={{ scale: 0.9 }}
-          >
-            <span className="w-full h-0.5 bg-black"></span>
-            <span className="w-full h-0.5 bg-black"></span>
-            <span className="w-full h-0.5 bg-black"></span>
-          </motion.button>
+          <div className="flex items-center gap-5 md:hidden">
+            <Link href="/play" className="border border-black px-3 py-1 text-sm font-bold transition-colors hover:bg-black hover:text-white">
+              Play
+            </Link>
+            <motion.button
+              className="w-8 h-8 flex flex-col justify-center gap-1.5"
+              aria-label="Open navigation menu"
+              whileTap={{ scale: 0.9 }}
+            >
+              <span className="w-full h-0.5 bg-black"></span>
+              <span className="w-full h-0.5 bg-black"></span>
+              <span className="w-full h-0.5 bg-black"></span>
+            </motion.button>
+          </div>
         </div>
       </div>
     </motion.header>

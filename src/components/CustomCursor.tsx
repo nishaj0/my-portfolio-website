@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const flightCursorActive = useRef(false);
+  const hideTimer = useRef<number | null>(null);
 
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
@@ -18,6 +21,26 @@ function CustomCursor() {
     const updateMousePosition = (e: MouseEvent) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
+      setIsVisible(true);
+
+      if (flightCursorActive.current) {
+        if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
+        hideTimer.current = window.setTimeout(() => setIsVisible(false), 3000);
+      }
+    };
+
+    const hideForFlight = () => {
+      flightCursorActive.current = true;
+      if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
+      hideTimer.current = null;
+      setIsVisible(false);
+    };
+
+    const resetAfterFlight = () => {
+      flightCursorActive.current = false;
+      if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
+      hideTimer.current = null;
+      setIsVisible(true);
     };
 
     const handleMouseOver = (e: MouseEvent) => {
@@ -42,6 +65,8 @@ function CustomCursor() {
     window.addEventListener('mouseout', handleMouseOut);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('kite-circuit-cursor-hide', hideForFlight);
+    window.addEventListener('kite-circuit-cursor-reset', resetAfterFlight);
 
     return () => {
       window.removeEventListener('mousemove', updateMousePosition);
@@ -49,13 +74,16 @@ function CustomCursor() {
       window.removeEventListener('mouseout', handleMouseOut);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('kite-circuit-cursor-hide', hideForFlight);
+      window.removeEventListener('kite-circuit-cursor-reset', resetAfterFlight);
+      if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
     };
   }, []);
   return (
     <>
       {/* main cursor dot */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[60] mix-blend-difference"
+        className="fixed top-0 left-0 pointer-events-none z-[80] mix-blend-difference"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
@@ -64,6 +92,7 @@ function CustomCursor() {
         }}
         animate={{
           scale: isClicking ? 0.8 : isHovering ? 1.5 : 1,
+          opacity: isVisible ? 1 : 0,
         }}
         transition={{
           scale: {
@@ -81,7 +110,7 @@ function CustomCursor() {
 
       {/* Outer ring with animation */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[60] mix-blend-difference"
+        className="fixed top-0 left-0 pointer-events-none z-[80] mix-blend-difference"
         style={{
           x: useSpring(cursorX, { damping: 15, stiffness: 150, mass: 0.1 }),
           y: useSpring(cursorY, { damping: 15, stiffness: 150, mass: 0.1 }),
@@ -91,6 +120,7 @@ function CustomCursor() {
         animate={{
           scale: isClicking ? 0.7 : isHovering ? 2 : 1,
           rotate: isHovering ? 90 : 0,
+          opacity: isVisible ? 1 : 0,
         }}
         transition={{
           scale: {
@@ -110,7 +140,7 @@ function CustomCursor() {
 
       {/* Additional shadow decorative ring */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[60] mix-blend-difference"
+        className="fixed top-0 left-0 pointer-events-none z-[80] mix-blend-difference"
         style={{
           x: useSpring(cursorX, { damping: 20, stiffness: 100 }),
           y: useSpring(cursorY, { damping: 20, stiffness: 100 }),
@@ -119,7 +149,7 @@ function CustomCursor() {
         }}
         animate={{
           scale: isHovering ? 1.5 : 0.8,
-          opacity: isHovering ? 1 : 0.3,
+          opacity: isVisible ? (isHovering ? 1 : 0.3) : 0,
         }}
         transition={{
           type: 'spring',
