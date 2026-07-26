@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { GatePose } from './types';
+import type { GatePose, ObstacleKind, ObstaclePose } from './types';
 
 export const CAMERA_START_Z = 9.2;
 
@@ -8,6 +8,9 @@ export const CAMERA_START_Z = 9.2;
 // looking like a conveyor of objects moving toward the player.
 export const GATE_STARTS = [-58, -136, -226];
 export const GATE_LOOP_LENGTH = 246;
+export const OBSTACLE_STARTS = [-96, -186, -276];
+export const OBSTACLE_LOOP_LENGTH = GATE_LOOP_LENGTH;
+export const OBSTACLE_KINDS: ObstacleKind[] = ['spinner', 'slider', 'orbiter', 'barrier'];
 export const ROAD_Y = -3.1;
 // The deck floats above the water so its dark underside reads against the sea.
 export const WATER_Y = ROAD_Y - 1.65;
@@ -25,6 +28,24 @@ export const NITRO_MAX = 100;
 export const NITRO_CHARGE_PER_SECOND = 6.5;
 export const NITRO_DRAIN_PER_SECOND = 22;
 export const NITRO_SPEED_MULTIPLIER = 1.7;
+
+// Obstacle motion constants
+export const SPINNER_LENGTH = 9;
+export const SPINNER_THICKNESS = 0.38;
+export const SPINNER_OMEGA = 1.1;
+export const SLIDER_RANGE = 4.2;
+export const SLIDER_PERIOD = 3.4;
+export const SLIDER_HALF_W = 3.0;
+export const SLIDER_HALF_H = 1.35;
+export const ORBITER_RADIUS = 3.4;
+export const ORBITER_OMEGA = 0.9;
+export const ORBITER_COUNT = 3;
+export const ORBITER_CHUNK = 0.85;
+export const BARRIER_HALF_W = 3.1;
+export const BARRIER_HALF_H = 1.35;
+export const BARRIER_DEPTH = 0.55;
+export const PLANE_HIT_RADIUS = 0.55;
+export const OBSTACLE_DEPTH_GATE = 0.65;
 
 export function flightSpeed(boostIntensity = 0) {
   const cruiseSpeed = 3.7;
@@ -57,4 +78,82 @@ export function gatePose(relativeZ: number, sequence = 0): GatePose {
     tilt: stagedPose.tilt + (sequence - 1) * 0.08,
     scale: stagedPose.scale,
   };
+}
+
+export function obstaclePose(
+  kind: ObstacleKind,
+  relativeZ: number,
+  phase: number,
+  lane: number,
+  clock: number,
+): ObstaclePose {
+  const depth = -relativeZ;
+  const baseX = lane;
+  const baseY = KITE_HOME_Y;
+
+  switch (kind) {
+    case 'barrier':
+      return {
+        x: baseX,
+        y: baseY,
+        z: depth,
+        rotZ: 0,
+        halfW: BARRIER_HALF_W,
+        halfH: BARRIER_HALF_H,
+      };
+    case 'spinner': {
+      const angle = clock * SPINNER_OMEGA + phase;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      const halfW = Math.abs(SPINNER_LENGTH * 0.5 * cos) + Math.abs(SPINNER_THICKNESS * 0.5 * sin);
+      const halfH = Math.abs(SPINNER_LENGTH * 0.5 * sin) + Math.abs(SPINNER_THICKNESS * 0.5 * cos);
+      return {
+        x: baseX,
+        y: baseY,
+        z: depth,
+        rotZ: angle,
+        halfW,
+        halfH,
+      };
+    }
+    case 'slider': {
+      const offset = Math.sin((clock / SLIDER_PERIOD) * Math.PI * 2 + phase) * SLIDER_RANGE;
+      return {
+        x: baseX + offset,
+        y: baseY,
+        z: depth,
+        rotZ: 0,
+        halfW: SLIDER_HALF_W,
+        halfH: SLIDER_HALF_H,
+      };
+    }
+    case 'orbiter': {
+      const angle = clock * ORBITER_OMEGA + phase;
+      const ox = Math.cos(angle) * ORBITER_RADIUS;
+      const oy = Math.sin(angle) * ORBITER_RADIUS;
+      return {
+        x: baseX + ox,
+        y: baseY + oy,
+        z: depth,
+        rotZ: angle,
+        halfW: ORBITER_CHUNK,
+        halfH: ORBITER_CHUNK,
+      };
+    }
+  }
+}
+
+export function hitsPlane(
+  pose: ObstaclePose,
+  planeX: number,
+  planeY: number,
+  planeZ: number,
+  planeRadius: number,
+): boolean {
+  if (Math.abs(pose.z - planeZ) > OBSTACLE_DEPTH_GATE) return false;
+  const dx = Math.abs(planeX - pose.x) - pose.halfW;
+  const dy = Math.abs(planeY - pose.y) - pose.halfH;
+  if (dx > planeRadius || dy > planeRadius) return false;
+  if (dx <= 0 && dy <= 0) return true;
+  return dx * dx + dy * dy <= planeRadius * planeRadius;
 }

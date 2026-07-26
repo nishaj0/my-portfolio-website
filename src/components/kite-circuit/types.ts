@@ -1,4 +1,23 @@
-export type RunState = 'intro' | 'running' | 'paused';
+export type RunState = 'intro' | 'running' | 'paused' | 'crashed';
+
+export type ObstacleKind = 'barrier' | 'spinner' | 'slider' | 'orbiter';
+
+export type ObstacleState = {
+  id: number;
+  kind: ObstacleKind;
+  z: number;
+  phase: number;
+  lane: number;
+};
+
+export type ObstaclePose = {
+  x: number;
+  y: number;
+  z: number;
+  rotZ: number;
+  halfW: number;
+  halfH: number;
+};
 
 export type GateState = {
   sequence: number;

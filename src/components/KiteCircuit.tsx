@@ -42,6 +42,8 @@ export default function KiteCircuit() {
     };
   }, []);
 
+  const onCrash = useCallback(() => updateRunState('crashed'), [updateRunState]);
+
   const resetRun = useCallback(() => {
     flightDistance.current = 0;
     player.current = { x: 0, y: KITE_HOME_Y };
@@ -145,7 +147,7 @@ export default function KiteCircuit() {
       onPointerCancel={() => { pointerDown.current = false; }}
     >
       <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0.46, 9.2], fov: 42 }} gl={{ antialias: true }}>
-        <KiteCircuitScene runId={runId} runState={runStateRef} flightDistance={flightDistance} player={player} target={target} nitro={nitro} onNitroChange={setNitroAmount} reducedMotion={reducedMotion} />
+        <KiteCircuitScene runId={runId} runState={runStateRef} flightDistance={flightDistance} player={player} target={target} nitro={nitro} onCrash={onCrash} onNitroChange={setNitroAmount} reducedMotion={reducedMotion} />
       </Canvas>
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between p-5 sm:p-8">
@@ -192,14 +194,20 @@ export default function KiteCircuit() {
               <>
                 <p className="text-xs font-bold tracking-[0.18em] text-white/60">IN DEVELOPMENT</p>
                 <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-6xl">Paper Plane Run <span className="block text-white/55">In Development</span></h1>
-                <p className="mx-auto mt-6 max-w-md text-base leading-relaxed text-white/75 sm:text-lg">Guide the paper plane through the rotating monuments and explore the course as it evolves.</p>
+                <p className="mx-auto mt-6 max-w-md text-base leading-relaxed text-white/75 sm:text-lg">Guide the paper plane through the rotating monuments, dodge the obstacles, and explore the course as it evolves.</p>
                 <p className="mt-5 text-sm font-semibold text-white/60">WASD / arrow keys or drag to steer</p>
                 <p className="mt-2 text-sm font-semibold text-white/50">Hold Shift to use nitro</p>
               </>
             )}
             {runState === 'paused' && <h1 className="text-6xl font-bold tracking-tight sm:text-8xl">Paused</h1>}
+            {runState === 'crashed' && (
+              <>
+                <h1 className="text-6xl font-bold tracking-tight sm:text-8xl">Crashed</h1>
+                <p className="mt-4 text-base text-white/70">You hit an obstacle.</p>
+              </>
+            )}
             <button type="button" onClick={resetRun} className="mt-9 border-2 border-white bg-white px-6 py-3 text-sm font-bold tracking-[0.12em] text-black transition-colors hover:bg-transparent hover:text-white">
-              {runState === 'paused' ? 'RESUME' : 'START FLIGHT'}
+              {runState === 'paused' ? 'RESUME' : runState === 'crashed' ? 'RETRY' : 'START FLIGHT'}
             </button>
             {runState === 'paused' && <p className="mt-5 text-xs font-semibold tracking-[0.1em] text-white/50">ESC TO RESUME</p>}
           </div>

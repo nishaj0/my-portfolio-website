@@ -4,19 +4,22 @@ import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { CAMERA_START_Z, flightSpeed, GATE_STARTS, KITE_HOME_Y, NITRO_CHARGE_PER_SECOND, NITRO_DRAIN_PER_SECOND, NITRO_MAX } from './course';
+import { CAMERA_START_Z, flightSpeed, GATE_STARTS, KITE_HOME_Y, NITRO_CHARGE_PER_SECOND, NITRO_DRAIN_PER_SECOND, NITRO_MAX, OBSTACLE_KINDS, OBSTACLE_STARTS } from './course';
 import BoostTrail from './environment/BoostTrail';
 import CloudBanks from './environment/CloudBanks';
+import CollisionSystem from './environment/CollisionSystem';
 import DarkWater from './environment/DarkWater';
 import Gates from './environment/Gates';
+import Obstacles from './environment/Obstacles';
 import PaperPlane from './environment/PaperPlane';
 import Roadway from './environment/Roadway';
 import Sky from './environment/Sky';
-import type { GateState, NitroState, RunState } from './types';
+import type { GateState, NitroState, ObstacleState, RunState } from './types';
 
 type FlightSceneProps = {
   flightDistance: React.MutableRefObject<number>;
   nitro: React.MutableRefObject<NitroState>;
+  onCrash: () => void;
   onNitroChange: (amount: number) => void;
   player: React.MutableRefObject<{ x: number; y: number }>;
   reducedMotion: boolean;
@@ -98,14 +101,26 @@ function CinematicFinish({ reducedMotion }: Pick<FlightSceneProps, 'reducedMotio
   );
 }
 
-export default function KiteCircuitScene({ flightDistance, nitro, onNitroChange, player, reducedMotion, runId, runState, target }: FlightSceneProps) {
+export default function KiteCircuitScene({ flightDistance, nitro, onCrash, onNitroChange, player, reducedMotion, runId, runState, target }: FlightSceneProps) {
   const gates = useMemo(() => GATE_STARTS.map((z, sequence) => ({ z, sequence })), []);
+  const obstacles = useMemo<ObstacleState[]>(
+    () =>
+      OBSTACLE_STARTS.map((z, index) => ({
+        id: index,
+        kind: OBSTACLE_KINDS[index % OBSTACLE_KINDS.length],
+        z,
+        phase: index * 0.7,
+        lane: ((index % 3) - 1) * 1.6,
+      })),
+    [],
+  );
 
   useEffect(() => {
     gates.forEach((gate, index) => { gate.z = GATE_STARTS[index]; });
+    obstacles.forEach((obstacle, index) => { obstacle.z = OBSTACLE_STARTS[index]; });
     player.current = { x: 0, y: KITE_HOME_Y };
     target.current = { x: 0, y: KITE_HOME_Y };
-  }, [gates, player, runId, target]);
+  }, [gates, obstacles, player, runId, target]);
 
   return (
     <>
@@ -122,6 +137,8 @@ export default function KiteCircuitScene({ flightDistance, nitro, onNitroChange,
         <CloudBanks flightDistance={flightDistance} nitro={nitro} reducedMotion={reducedMotion} runState={runState} />
       </Suspense>
       {gates.map((gate, index) => <Gates key={index} gate={gate} flightDistance={flightDistance} runState={runState} />)}
+      <Obstacles flightDistance={flightDistance} obstacles={obstacles} runState={runState} />
+      <CollisionSystem flightDistance={flightDistance} nitro={nitro} obstacles={obstacles} player={player} runState={runState} onCrash={onCrash} />
       <BoostTrail flightDistance={flightDistance} nitro={nitro} player={player} reducedMotion={reducedMotion} runState={runState} />
       <PaperPlane flightDistance={flightDistance} nitro={nitro} player={player} reducedMotion={reducedMotion} target={target} />
       <CinematicFinish reducedMotion={reducedMotion} />
