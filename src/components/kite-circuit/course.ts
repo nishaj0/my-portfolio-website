@@ -27,7 +27,18 @@ export const KITE_MAX_Y = KITE_HOME_Y + KITE_LIMIT_Y;
 export const NITRO_MAX = 100;
 export const NITRO_CHARGE_PER_SECOND = 6.5;
 export const NITRO_DRAIN_PER_SECOND = 22;
-export const NITRO_SPEED_MULTIPLIER = 1.7;
+
+// Progressive difficulty constants
+export const CRUISE_SPEED_BASE = 3.7;
+export const CRUISE_SPEED_MAX = 9.5;
+export const SPEED_RAMP_DISTANCE = 600;
+export const NITRO_MULTIPLIER_BASE = 2.0;
+export const NITRO_MULTIPLIER_MAX = 3.0;
+export const OBSTACLE_DENSITY_BASE = 90;
+export const OBSTACLE_DENSITY_MIN = 40;
+export const OBSTACLE_SPEED_BASE = 1.0;
+export const OBSTACLE_SPEED_MAX = 2.2;
+export const SCORE_PER_UNIT = 1;
 
 // Obstacle motion constants
 export const SPINNER_LENGTH = 9;
@@ -47,9 +58,24 @@ export const BARRIER_DEPTH = 0.55;
 export const PLANE_HIT_RADIUS = 0.55;
 export const OBSTACLE_DEPTH_GATE = 0.65;
 
-export function flightSpeed(boostIntensity = 0) {
-  const cruiseSpeed = 3.7;
-  return cruiseSpeed * THREE.MathUtils.lerp(1, NITRO_SPEED_MULTIPLIER, boostIntensity);
+export function difficultyMultiplier(distance: number): number {
+  return THREE.MathUtils.clamp(distance / SPEED_RAMP_DISTANCE, 0, 1);
+}
+
+export function flightSpeed(boostIntensity = 0, distance = 0) {
+  const rampT = difficultyMultiplier(distance);
+  const cruise = THREE.MathUtils.lerp(CRUISE_SPEED_BASE, CRUISE_SPEED_MAX, rampT);
+  const nitroMult = THREE.MathUtils.lerp(NITRO_MULTIPLIER_BASE, NITRO_MULTIPLIER_MAX, rampT);
+  return cruise * THREE.MathUtils.lerp(1, nitroMult, boostIntensity);
+}
+
+export function obstacleSpacing(distance: number): number {
+  const rampT = difficultyMultiplier(distance);
+  return THREE.MathUtils.lerp(OBSTACLE_DENSITY_BASE, OBSTACLE_DENSITY_MIN, rampT);
+}
+
+export function obstacleMotionMultiplier(distance: number): number {
+  return THREE.MathUtils.lerp(OBSTACLE_SPEED_BASE, OBSTACLE_SPEED_MAX, difficultyMultiplier(distance));
 }
 
 export function gatePose(relativeZ: number, sequence = 0): GatePose {
@@ -86,6 +112,7 @@ export function obstaclePose(
   phase: number,
   lane: number,
   clock: number,
+  motionMultiplier = 1,
 ): ObstaclePose {
   const depth = -relativeZ;
   const baseX = lane;
@@ -102,7 +129,7 @@ export function obstaclePose(
         halfH: BARRIER_HALF_H,
       };
     case 'spinner': {
-      const angle = clock * SPINNER_OMEGA + phase;
+      const angle = clock * SPINNER_OMEGA * motionMultiplier + phase;
       const cos = Math.cos(angle);
       const sin = Math.sin(angle);
       const halfW = Math.abs(SPINNER_LENGTH * 0.5 * cos) + Math.abs(SPINNER_THICKNESS * 0.5 * sin);
@@ -117,7 +144,8 @@ export function obstaclePose(
       };
     }
     case 'slider': {
-      const offset = Math.sin((clock / SLIDER_PERIOD) * Math.PI * 2 + phase) * SLIDER_RANGE;
+      const period = SLIDER_PERIOD / motionMultiplier;
+      const offset = Math.sin((clock / period) * Math.PI * 2 + phase) * SLIDER_RANGE;
       return {
         x: baseX + offset,
         y: baseY,
@@ -128,7 +156,7 @@ export function obstaclePose(
       };
     }
     case 'orbiter': {
-      const angle = clock * ORBITER_OMEGA + phase;
+      const angle = clock * ORBITER_OMEGA * motionMultiplier + phase;
       const ox = Math.cos(angle) * ORBITER_RADIUS;
       const oy = Math.sin(angle) * ORBITER_RADIUS;
       return {

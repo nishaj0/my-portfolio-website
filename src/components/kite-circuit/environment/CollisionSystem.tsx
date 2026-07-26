@@ -1,7 +1,7 @@
 'use client';
 
 import { useFrame } from '@react-three/fiber';
-import { CAMERA_START_Z, PLANE_HIT_RADIUS, OBSTACLE_DEPTH_GATE, obstaclePose } from '../course';
+import { CAMERA_START_Z, PLANE_HIT_RADIUS, OBSTACLE_DEPTH_GATE, obstacleMotionMultiplier, obstaclePose } from '../course';
 import type { ObstacleState, RunState } from '../types';
 
 type CollisionSystemProps = {
@@ -24,6 +24,7 @@ export default function CollisionSystem({
   useFrame(({ clock }) => {
     if (runState.current !== 'running') return;
     const planeWorldZ = -flightDistance.current - 0.88 * (nitro.current.active ? nitro.current.intensity : 0);
+    const motionMult = obstacleMotionMultiplier(flightDistance.current);
     for (const obstacle of obstacles) {
       if (Math.abs(obstacle.z - planeWorldZ) > OBSTACLE_DEPTH_GATE) continue;
       const relativeZ = obstacle.z - (CAMERA_START_Z - flightDistance.current);
@@ -33,6 +34,7 @@ export default function CollisionSystem({
         obstacle.phase,
         obstacle.lane,
         clock.elapsedTime,
+        motionMult,
       );
       const dx = Math.abs(player.current.x - pose.x) - pose.halfW;
       const dy = Math.abs(player.current.y - pose.y) - pose.halfH;

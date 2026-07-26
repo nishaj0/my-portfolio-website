@@ -58,7 +58,7 @@ function CinematicCamera({ flightDistance, nitro, onBoostChange, onNitroChange, 
         nitro.current.intensity = 0;
       }
       nitro.current.active = canBoost && nitro.current.intensity > 0.025;
-      flightDistance.current += flightSpeed(nitro.current.active ? nitro.current.intensity : 0) * delta;
+      flightDistance.current += flightSpeed(nitro.current.active ? nitro.current.intensity : 0, flightDistance.current) * delta;
     } else {
       nitro.current.active = false;
       nitro.current.intensity += (0 - nitro.current.intensity) * (1 - Math.exp(-delta * 8));

@@ -12,6 +12,8 @@ export default function KiteCircuit() {
   const [runState, setRunState] = useState<RunState>('intro');
   const [boostActive, setBoostActive] = useState(false);
   const [nitroAmount, setNitroAmount] = useState(0);
+  const [score, setScore] = useState(0);
+  const [highscore, setHighscore] = useState(0);
   const [runId, setRunId] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -27,6 +29,11 @@ export default function KiteCircuit() {
   const updateRunState = useCallback((next: RunState) => {
     runStateRef.current = next;
     setRunState(next);
+  }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('paper-plane-highscore');
+    if (saved) setHighscore(parseInt(saved, 10) || 0);
   }, []);
 
   useEffect(() => {
@@ -46,7 +53,18 @@ export default function KiteCircuit() {
     };
   }, []);
 
-  const onCrash = useCallback(() => updateRunState('crashed'), [updateRunState]);
+  const onCrash = useCallback(() => {
+    const finalScore = Math.floor(flightDistance.current);
+    setScore(finalScore);
+    setHighscore((prev) => {
+      if (finalScore > prev) {
+        localStorage.setItem('paper-plane-highscore', String(finalScore));
+        return finalScore;
+      }
+      return prev;
+    });
+    updateRunState('crashed');
+  }, [updateRunState]);
 
   const resetRun = useCallback(() => {
     startAudio();
@@ -55,6 +73,7 @@ export default function KiteCircuit() {
     target.current = { x: 0, y: KITE_HOME_Y };
     pressedKeys.current.clear();
     nitro.current = { amount: 0, held: false, locked: false, active: false, intensity: 0 };
+    setScore(0);
     setNitroAmount(0);
     setRunId((value) => value + 1);
     updateRunState('running');
@@ -108,17 +127,25 @@ export default function KiteCircuit() {
   useEffect(() => {
     let frame = 0;
     let lastTime = performance.now();
+    let lastScore = 0;
     const updateSteering = (now: number) => {
       const delta = Math.min((now - lastTime) / 1000, 0.05);
       lastTime = now;
-      if (runStateRef.current === 'running' && pressedKeys.current.size > 0) {
-        const held = pressedKeys.current;
-        const horizontal = Number(held.has('arrowright') || held.has('d')) - Number(held.has('arrowleft') || held.has('a'));
-        const vertical = Number(held.has('arrowup') || held.has('w')) - Number(held.has('arrowdown') || held.has('s'));
-        const length = Math.hypot(horizontal, vertical) || 1;
-        const steerSpeed = 5.35;
-        target.current.x = Math.max(-KITE_LIMIT_X, Math.min(KITE_LIMIT_X, target.current.x + (horizontal / length) * steerSpeed * delta));
-        target.current.y = Math.max(KITE_MIN_Y, Math.min(KITE_MAX_Y, target.current.y + (vertical / length) * steerSpeed * delta));
+      if (runStateRef.current === 'running') {
+        const currentScore = Math.floor(flightDistance.current);
+        if (currentScore !== lastScore) {
+          lastScore = currentScore;
+          setScore(currentScore);
+        }
+        if (pressedKeys.current.size > 0) {
+          const held = pressedKeys.current;
+          const horizontal = Number(held.has('arrowright') || held.has('d')) - Number(held.has('arrowleft') || held.has('a'));
+          const vertical = Number(held.has('arrowup') || held.has('w')) - Number(held.has('arrowdown') || held.has('s'));
+          const length = Math.hypot(horizontal, vertical) || 1;
+          const steerSpeed = 5.35;
+          target.current.x = Math.max(-KITE_LIMIT_X, Math.min(KITE_LIMIT_X, target.current.x + (horizontal / length) * steerSpeed * delta));
+          target.current.y = Math.max(KITE_MIN_Y, Math.min(KITE_MAX_Y, target.current.y + (vertical / length) * steerSpeed * delta));
+        }
       }
       frame = window.requestAnimationFrame(updateSteering);
     };
@@ -158,13 +185,23 @@ export default function KiteCircuit() {
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between p-5 sm:p-8">
         <div>
           <p className="text-xs font-bold tracking-[0.16em] text-white/60">PAPER PLANE RUN</p>
-          <div className="mt-4 w-24">
-            <div className="flex items-center justify-between text-[10px] font-bold tracking-[0.14em] text-white/55">
-              <span>NITRO</span>
-              <span>{Math.round(nitroAmount).toString().padStart(2, '0')}</span>
+          <div className="mt-4 flex gap-6">
+            <div className="w-24">
+              <div className="flex items-center justify-between text-[10px] font-bold tracking-[0.14em] text-white/55">
+                <span>NITRO</span>
+                <span>{Math.round(nitroAmount).toString().padStart(2, '0')}</span>
+              </div>
+              <div className="mt-1 h-1 overflow-hidden bg-white/20" aria-label={`Nitro ${Math.round(nitroAmount)} percent`}>
+                <div className="h-full bg-white transition-[width] duration-100" style={{ width: `${nitroAmount}%` }} />
+              </div>
             </div>
-            <div className="mt-1 h-1 overflow-hidden bg-white/20" aria-label={`Nitro ${Math.round(nitroAmount)} percent`}>
-              <div className="h-full bg-white transition-[width] duration-100" style={{ width: `${nitroAmount}%` }} />
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.14em] text-white/55">SCORE</p>
+              <p className="mt-1 text-lg font-bold tabular-nums">{score.toString().padStart(4, '0')}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.14em] text-white/55">BEST</p>
+              <p className="mt-1 text-lg font-bold tabular-nums">{highscore.toString().padStart(4, '0')}</p>
             </div>
           </div>
         </div>
@@ -219,6 +256,19 @@ export default function KiteCircuit() {
               <>
                 <h1 className="text-6xl font-bold tracking-tight sm:text-8xl">Crashed</h1>
                 <p className="mt-4 text-base text-white/70">You hit an obstacle.</p>
+                <div className="mt-6 flex items-center justify-center gap-8">
+                  <div>
+                    <p className="text-[10px] font-bold tracking-[0.14em] text-white/55">SCORE</p>
+                    <p className="mt-1 text-3xl font-bold tabular-nums">{score.toString().padStart(4, '0')}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold tracking-[0.14em] text-white/55">BEST</p>
+                    <p className="mt-1 text-3xl font-bold tabular-nums">{highscore.toString().padStart(4, '0')}</p>
+                    {score >= highscore && score > 0 && (
+                      <p className="mt-1 text-xs font-bold tracking-[0.1em] text-yellow-400">NEW BEST!</p>
+                    )}
+                  </div>
+                </div>
               </>
             )}
             <button type="button" onClick={resetRun} className="mt-9 border-2 border-white bg-white px-6 py-3 text-sm font-bold tracking-[0.12em] text-black transition-colors hover:bg-transparent hover:text-white">

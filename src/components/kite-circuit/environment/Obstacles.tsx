@@ -9,7 +9,7 @@ import {
   BARRIER_HALF_W,
   CAMERA_START_Z,
   KITE_HOME_Y,
-  OBSTACLE_LOOP_LENGTH,
+  OBSTACLE_KINDS,
   ORBITER_CHUNK,
   ORBITER_COUNT,
   ORBITER_RADIUS,
@@ -17,9 +17,11 @@ import {
   SLIDER_HALF_W,
   SPINNER_LENGTH,
   SPINNER_THICKNESS,
+  obstacleMotionMultiplier,
   obstaclePose,
+  obstacleSpacing,
 } from '../course';
-import type { ObstacleState, RunState } from '../types';
+import type { ObstacleKind, ObstacleState, RunState } from '../types';
 
 type ObstaclesProps = {
   flightDistance: React.MutableRefObject<number>;
@@ -28,15 +30,21 @@ type ObstaclesProps = {
 };
 
 const obstacleMaterial = {
-  color: '#ffffff',
-  roughness: 0.08,
-  metalness: 0.24,
-  emissive: '#ffffff',
-  emissiveIntensity: 0.95,
-  clearcoat: 0.58,
+  color: '#8a9098',
+  metalness: 1.0,
+  roughness: 0.18,
+  emissive: '#1a1f26',
+  emissiveIntensity: 0.3,
+  clearcoat: 1.0,
   clearcoatRoughness: 0.08,
+  envMapIntensity: 1.4,
   toneMapped: false,
 };
+
+function deterministicKind(id: number, recycleCount: number): ObstacleKind {
+  const seed = id * 7 + recycleCount * 13;
+  return OBSTACLE_KINDS[Math.abs(seed) % OBSTACLE_KINDS.length];
+}
 
 function Obstacle({
   flightDistance,
@@ -49,6 +57,7 @@ function Obstacle({
 }) {
   const group = useRef<THREE.Group>(null);
   const orbiterChildren = useRef<THREE.Mesh[]>([]);
+  const recycleCount = useRef(0);
 
   const geometry = useMemo(() => {
     switch (obstacle.kind) {
@@ -75,12 +84,17 @@ function Obstacle({
 
   useFrame(({ clock }) => {
     if (!group.current) return;
-    let relativeZ = obstacle.z - (CAMERA_START_Z - flightDistance.current);
+    const distance = flightDistance.current;
+    const motionMult = obstacleMotionMultiplier(distance);
+    let relativeZ = obstacle.z - (CAMERA_START_Z - distance);
     if (runState.current === 'running' && relativeZ > 14) {
-      obstacle.z -= Math.ceil((relativeZ - 14) / OBSTACLE_LOOP_LENGTH) * OBSTACLE_LOOP_LENGTH;
-      relativeZ = obstacle.z - (CAMERA_START_Z - flightDistance.current);
+      const spacing = obstacleSpacing(distance);
+      obstacle.z -= Math.ceil((relativeZ - 14) / spacing) * spacing;
+      relativeZ = obstacle.z - (CAMERA_START_Z - distance);
+      recycleCount.current += 1;
+      obstacle.kind = deterministicKind(obstacle.id, recycleCount.current);
     }
-    const pose = obstaclePose(obstacle.kind, relativeZ, obstacle.phase, obstacle.lane, clock.elapsedTime);
+    const pose = obstaclePose(obstacle.kind, relativeZ, obstacle.phase, obstacle.lane, clock.elapsedTime, motionMult);
     group.current.position.set(pose.x, pose.y, obstacle.z);
     group.current.rotation.z = pose.rotZ;
 
