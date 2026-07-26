@@ -20,6 +20,7 @@ type FlightSceneProps = {
   flightDistance: React.MutableRefObject<number>;
   nitro: React.MutableRefObject<NitroState>;
   onCrash: () => void;
+  onBoostChange: (active: boolean) => void;
   onNitroChange: (amount: number) => void;
   player: React.MutableRefObject<{ x: number; y: number }>;
   reducedMotion: boolean;
@@ -28,7 +29,7 @@ type FlightSceneProps = {
   target: React.MutableRefObject<{ x: number; y: number }>;
 };
 
-function CinematicCamera({ flightDistance, nitro, onNitroChange, reducedMotion, runState }: Pick<FlightSceneProps, 'flightDistance' | 'nitro' | 'onNitroChange' | 'reducedMotion' | 'runState'>) {
+function CinematicCamera({ flightDistance, nitro, onBoostChange, onNitroChange, reducedMotion, runState }: Pick<FlightSceneProps, 'flightDistance' | 'nitro' | 'onBoostChange' | 'onNitroChange' | 'reducedMotion' | 'runState'>) {
   const { camera } = useThree();
   const lastReportedNitro = useRef(-1);
   const lastReportedBoost = useRef(false);
@@ -63,10 +64,14 @@ function CinematicCamera({ flightDistance, nitro, onNitroChange, reducedMotion, 
       nitro.current.intensity += (0 - nitro.current.intensity) * (1 - Math.exp(-delta * 8));
     }
 
-    if (Math.abs(lastReportedNitro.current - nitro.current.amount) >= 0.35 || lastReportedBoost.current !== nitro.current.active) {
+    if (Math.abs(lastReportedNitro.current - nitro.current.amount) >= 0.35) {
       lastReportedNitro.current = nitro.current.amount;
-      lastReportedBoost.current = nitro.current.active;
       onNitroChange(nitro.current.amount);
+    }
+
+    if (lastReportedBoost.current !== nitro.current.active) {
+      lastReportedBoost.current = nitro.current.active;
+      onBoostChange(nitro.current.active);
     }
 
     const cameraZ = CAMERA_START_Z - flightDistance.current;
@@ -101,7 +106,7 @@ function CinematicFinish({ reducedMotion }: Pick<FlightSceneProps, 'reducedMotio
   );
 }
 
-export default function KiteCircuitScene({ flightDistance, nitro, onCrash, onNitroChange, player, reducedMotion, runId, runState, target }: FlightSceneProps) {
+export default function KiteCircuitScene({ flightDistance, nitro, onBoostChange, onCrash, onNitroChange, player, reducedMotion, runId, runState, target }: FlightSceneProps) {
   const gates = useMemo(() => GATE_STARTS.map((z, sequence) => ({ z, sequence })), []);
   const obstacles = useMemo<ObstacleState[]>(
     () =>
@@ -124,7 +129,7 @@ export default function KiteCircuitScene({ flightDistance, nitro, onCrash, onNit
 
   return (
     <>
-      <CinematicCamera flightDistance={flightDistance} nitro={nitro} onNitroChange={onNitroChange} reducedMotion={reducedMotion} runState={runState} />
+      <CinematicCamera flightDistance={flightDistance} nitro={nitro} onBoostChange={onBoostChange} onNitroChange={onNitroChange} reducedMotion={reducedMotion} runState={runState} />
       <RendererSettings />
       <color attach="background" args={['#000000']} />
       <Sky />

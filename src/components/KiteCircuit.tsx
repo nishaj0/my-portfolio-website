@@ -6,12 +6,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { KITE_HOME_Y, KITE_LIMIT_X, KITE_MAX_Y, KITE_MIN_Y } from './kite-circuit/course';
 import KiteCircuitScene from './kite-circuit/Scene';
 import type { NitroState, RunState } from './kite-circuit/types';
+import useGameAudio from './kite-circuit/useGameAudio';
 
 export default function KiteCircuit() {
   const [runState, setRunState] = useState<RunState>('intro');
+  const [boostActive, setBoostActive] = useState(false);
   const [nitroAmount, setNitroAmount] = useState(0);
   const [runId, setRunId] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const runStateRef = useRef<RunState>('intro');
   const flightDistance = useRef(0);
   const player = useRef({ x: 0, y: KITE_HOME_Y });
@@ -19,6 +22,7 @@ export default function KiteCircuit() {
   const pointerDown = useRef(false);
   const pressedKeys = useRef(new Set<string>());
   const nitro = useRef<NitroState>({ amount: 0, held: false, locked: false, active: false, intensity: 0 });
+  const startAudio = useGameAudio({ boostActive, enabled: soundEnabled, runState });
 
   const updateRunState = useCallback((next: RunState) => {
     runStateRef.current = next;
@@ -45,6 +49,7 @@ export default function KiteCircuit() {
   const onCrash = useCallback(() => updateRunState('crashed'), [updateRunState]);
 
   const resetRun = useCallback(() => {
+    startAudio();
     flightDistance.current = 0;
     player.current = { x: 0, y: KITE_HOME_Y };
     target.current = { x: 0, y: KITE_HOME_Y };
@@ -54,7 +59,7 @@ export default function KiteCircuit() {
     setRunId((value) => value + 1);
     updateRunState('running');
     window.dispatchEvent(new Event('kite-circuit-cursor-hide'));
-  }, [updateRunState]);
+  }, [startAudio, updateRunState]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -147,7 +152,7 @@ export default function KiteCircuit() {
       onPointerCancel={() => { pointerDown.current = false; }}
     >
       <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0.46, 9.2], fov: 42 }} gl={{ antialias: true }}>
-        <KiteCircuitScene runId={runId} runState={runStateRef} flightDistance={flightDistance} player={player} target={target} nitro={nitro} onCrash={onCrash} onNitroChange={setNitroAmount} reducedMotion={reducedMotion} />
+        <KiteCircuitScene runId={runId} runState={runStateRef} flightDistance={flightDistance} player={player} target={target} nitro={nitro} onBoostChange={setBoostActive} onCrash={onCrash} onNitroChange={setNitroAmount} reducedMotion={reducedMotion} />
       </Canvas>
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between p-5 sm:p-8">
@@ -163,9 +168,19 @@ export default function KiteCircuit() {
             </div>
           </div>
         </div>
-        <Link href="/" className="pointer-events-auto border border-white px-3 py-2 text-xs font-bold tracking-[0.12em] transition-colors hover:bg-white hover:text-black">
-          EXIT
-        </Link>
+        <div className="pointer-events-auto flex items-center gap-3">
+          <button
+            type="button"
+            aria-pressed={soundEnabled}
+            onClick={() => setSoundEnabled((enabled) => !enabled)}
+            className="border border-white/65 px-3 py-2 text-xs font-bold tracking-[0.12em] transition-colors hover:bg-white hover:text-black"
+          >
+            SOUND {soundEnabled ? 'ON' : 'OFF'}
+          </button>
+          <Link href="/" className="border border-white px-3 py-2 text-xs font-bold tracking-[0.12em] transition-colors hover:bg-white hover:text-black">
+            EXIT
+          </Link>
+        </div>
       </header>
 
       {runState === 'running' && (
