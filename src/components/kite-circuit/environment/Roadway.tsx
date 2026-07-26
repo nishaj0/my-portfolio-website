@@ -18,16 +18,16 @@ export default function Roadway({ flightDistance }: RoadwayProps) {
 
   return (
     <group ref={roadway}>
-      <mesh position={[0, ROAD_Y - 0.28, 0]} receiveShadow>
+      <mesh position={[0, ROAD_Y - 0.34, 0]} receiveShadow>
         <boxGeometry args={[ROAD_WIDTH, 0.56, ROAD_LENGTH]} />
         <meshStandardMaterial color="#010102" roughness={0.48} metalness={0.28} />
       </mesh>
       <mesh position={[0, ROAD_Y, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[ROAD_WIDTH, ROAD_LENGTH]} />
-        <meshPhysicalMaterial color="#010203" roughness={0.17} metalness={0.48} clearcoat={0.9} clearcoatRoughness={0.12} reflectivity={0.7} />
+        <meshPhysicalMaterial color="#010203" roughness={0.25} metalness={0.32} clearcoat={0.72} clearcoatRoughness={0.16} reflectivity={0.55} />
       </mesh>
 
-      <mesh position={[0, ROAD_Y + 0.018, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[0, ROAD_Y + 0.045, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[0.085, ROAD_LENGTH]} />
         <meshBasicMaterial color="#ffffff" toneMapped={false} />
       </mesh>

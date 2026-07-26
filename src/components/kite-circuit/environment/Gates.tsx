@@ -3,17 +3,16 @@
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { CAMERA_START_Z, FRAME_BEAM, FRAME_HEIGHT, FRAME_WIDTH, gatePose } from '../course';
-import type { GatePose, GateState, RunState } from '../types';
+import { CAMERA_START_Z, FRAME_BEAM, FRAME_HEIGHT, FRAME_WIDTH, GATE_LOOP_LENGTH, gatePose } from '../course';
+import type { GateState, RunState } from '../types';
 
 type GatesProps = {
   flightDistance: React.MutableRefObject<number>;
   gate: GateState;
-  onResolve: (gate: GateState, pose: GatePose) => void;
   runState: React.MutableRefObject<RunState>;
 };
 
-export default function Gates({ flightDistance, gate, onResolve, runState }: GatesProps) {
+export default function Gates({ flightDistance, gate, runState }: GatesProps) {
   const group = useRef<THREE.Group>(null);
   const geometry = useMemo(() => {
     const halfWidth = FRAME_WIDTH / 2;
@@ -48,16 +47,19 @@ export default function Gates({ flightDistance, gate, onResolve, runState }: Gat
   }, []);
 
   useEffect(() => () => geometry.dispose(), [geometry]);
-  const initialPose = gatePose(gate.z - CAMERA_START_Z, gate.sequence, gate.cycle);
+  const initialPose = gatePose(gate.z - CAMERA_START_Z, gate.sequence);
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (!group.current) return;
-    const relativeZ = gate.z - (CAMERA_START_Z - flightDistance.current);
-    const pose = gatePose(relativeZ, gate.sequence, gate.cycle);
+    let relativeZ = gate.z - (CAMERA_START_Z - flightDistance.current);
+    if (runState.current === 'running' && relativeZ > 14) {
+      gate.z -= Math.ceil((relativeZ - 14) / GATE_LOOP_LENGTH) * GATE_LOOP_LENGTH;
+      relativeZ = gate.z - (CAMERA_START_Z - flightDistance.current);
+    }
+    const pose = gatePose(relativeZ, gate.sequence);
     group.current.position.set(pose.x, pose.y, gate.z);
-    group.current.rotation.z = pose.tilt;
+    group.current.rotation.z = pose.tilt + clock.elapsedTime * (0.14 + gate.sequence * 0.025);
     group.current.scale.setScalar(pose.scale);
-    if (relativeZ > -1.1 && runState.current === 'running') onResolve(gate, pose);
   });
 
   return (

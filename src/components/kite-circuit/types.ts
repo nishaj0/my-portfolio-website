@@ -1,7 +1,6 @@
-export type RunState = 'intro' | 'running' | 'paused' | 'gameover';
+export type RunState = 'intro' | 'running' | 'paused';
 
 export type GateState = {
-  cycle: number;
   sequence: number;
   z: number;
 };
@@ -9,6 +8,7 @@ export type GateState = {
 export type NitroState = {
   amount: number;
   held: boolean;
+  locked: boolean;
   active: boolean;
   intensity: number;
 };
@@ -18,7 +18,4 @@ export type GatePose = {
   y: number;
   tilt: number;
   scale: number;
-  aimX: number;
-  aimY: number;
-  passRadius: number;
 };

@@ -66,7 +66,7 @@ export default function BoostTrail({ flightDistance, nitro, player, reducedMotio
   useFrame((_, delta) => {
     if (!group.current || !material.current) return;
     group.current.position.set(player.current.x, player.current.y, -flightDistance.current + 0.1);
-    const intensity = !reducedMotion && runState.current === 'running' ? nitro.current.intensity : 0;
+    const intensity = !reducedMotion && runState.current === 'running' && nitro.current.active ? nitro.current.intensity : 0;
     material.current.uniforms.uActive.value += (intensity - material.current.uniforms.uActive.value) * Math.min(1, delta * 10);
     if (intensity > 0.01) material.current.uniforms.uTime.value += delta * THREE.MathUtils.lerp(0.6, 1.2, intensity);
   });

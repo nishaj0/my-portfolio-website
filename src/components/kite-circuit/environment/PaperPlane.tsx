@@ -4,7 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Suspense, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { KITE_HOME_Y } from '../course';
+import { KITE_HOME_Y, KITE_MAX_Y, KITE_MIN_Y } from '../course';
 import type { NitroState } from '../types';
 
 type PaperPlaneProps = {
@@ -17,17 +17,22 @@ type PaperPlaneProps = {
 
 export default function PaperPlane({ flightDistance, nitro, player, reducedMotion, target }: PaperPlaneProps) {
   const group = useRef<THREE.Group>(null);
+  const previousPosition = useRef(new THREE.Vector2(0, KITE_HOME_Y));
 
   useFrame(({ clock }, delta) => {
     if (!group.current) return;
-    const ease = 1 - Math.exp(-delta * 8);
-    const boostIntensity = nitro.current.intensity;
+    const ease = 1 - Math.exp(-delta * 11.5);
+    const boostIntensity = nitro.current.active ? nitro.current.intensity : 0;
     group.current.position.x += (target.current.x - group.current.position.x) * ease;
     group.current.position.y += (target.current.y - group.current.position.y) * ease;
+    group.current.position.y = THREE.MathUtils.clamp(group.current.position.y, KITE_MIN_Y, KITE_MAX_Y);
     group.current.position.z = -flightDistance.current - 0.88 * boostIntensity;
-    group.current.rotation.z = -group.current.position.x * 0.13;
-    group.current.rotation.x = (reducedMotion ? 0 : Math.sin(clock.elapsedTime * 2.1) * 0.018) - 0.032 * boostIntensity;
+    const horizontalVelocity = (group.current.position.x - previousPosition.current.x) / Math.max(delta, 0.001);
+    const verticalVelocity = (group.current.position.y - previousPosition.current.y) / Math.max(delta, 0.001);
+    group.current.rotation.z = THREE.MathUtils.clamp(-horizontalVelocity * 0.095, -0.42, 0.42);
+    group.current.rotation.x = THREE.MathUtils.clamp(-verticalVelocity * 0.035, -0.24, 0.24) + (reducedMotion ? 0 : Math.sin(clock.elapsedTime * 2.1) * 0.012) - 0.032 * boostIntensity;
     group.current.scale.setScalar(1 - 0.04 * boostIntensity);
+    previousPosition.current.set(group.current.position.x, group.current.position.y);
     player.current.x = group.current.position.x;
     player.current.y = group.current.position.y;
   });

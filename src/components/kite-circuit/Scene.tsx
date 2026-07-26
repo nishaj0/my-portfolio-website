@@ -12,22 +12,20 @@ import Gates from './environment/Gates';
 import PaperPlane from './environment/PaperPlane';
 import Roadway from './environment/Roadway';
 import Sky from './environment/Sky';
-import type { GatePose, GateState, NitroState, RunState } from './types';
+import type { GateState, NitroState, RunState } from './types';
 
 type FlightSceneProps = {
   flightDistance: React.MutableRefObject<number>;
   nitro: React.MutableRefObject<NitroState>;
   onNitroChange: (amount: number) => void;
-  onResolve: (gate: GateState, pose: GatePose) => void;
   player: React.MutableRefObject<{ x: number; y: number }>;
   reducedMotion: boolean;
   runId: number;
   runState: React.MutableRefObject<RunState>;
-  scoreRef: React.MutableRefObject<number>;
   target: React.MutableRefObject<{ x: number; y: number }>;
 };
 
-function CinematicCamera({ flightDistance, nitro, onNitroChange, reducedMotion, runState, scoreRef }: Pick<FlightSceneProps, 'flightDistance' | 'nitro' | 'onNitroChange' | 'reducedMotion' | 'runState' | 'scoreRef'>) {
+function CinematicCamera({ flightDistance, nitro, onNitroChange, reducedMotion, runState }: Pick<FlightSceneProps, 'flightDistance' | 'nitro' | 'onNitroChange' | 'reducedMotion' | 'runState'>) {
   const { camera } = useThree();
   const lastReportedNitro = useRef(-1);
   const lastReportedBoost = useRef(false);
@@ -40,17 +38,23 @@ function CinematicCamera({ flightDistance, nitro, onNitroChange, reducedMotion, 
 
   useFrame(({ clock }, delta) => {
     if (runState.current === 'running') {
-      const canBoost = nitro.current.held && nitro.current.amount > 0.05;
+      const canBoost = nitro.current.held && !nitro.current.locked && nitro.current.amount > 0.75;
+      const canRecharge = !nitro.current.held && !nitro.current.locked;
       const intensityEase = 1 - Math.exp(-delta * (canBoost ? 4.8 : 6.8));
       nitro.current.intensity += ((canBoost ? 1 : 0) - nitro.current.intensity) * intensityEase;
-      nitro.current.active = nitro.current.intensity > 0.025;
       nitro.current.amount = THREE.MathUtils.clamp(
-        nitro.current.amount + (canBoost ? -NITRO_DRAIN_PER_SECOND : NITRO_CHARGE_PER_SECOND) * delta,
+        nitro.current.amount + (canBoost ? -NITRO_DRAIN_PER_SECOND : canRecharge ? NITRO_CHARGE_PER_SECOND : 0) * delta,
         0,
         NITRO_MAX,
       );
-      if (nitro.current.amount <= 0) nitro.current.active = false;
-      flightDistance.current += flightSpeed(scoreRef.current, nitro.current.intensity) * delta;
+      if (nitro.current.amount <= 0.05) {
+        nitro.current.amount = 0;
+        nitro.current.held = false;
+        nitro.current.locked = true;
+        nitro.current.intensity = 0;
+      }
+      nitro.current.active = canBoost && nitro.current.intensity > 0.025;
+      flightDistance.current += flightSpeed(nitro.current.active ? nitro.current.intensity : 0) * delta;
     } else {
       nitro.current.active = false;
       nitro.current.intensity += (0 - nitro.current.intensity) * (1 - Math.exp(-delta * 8));
@@ -94,18 +98,18 @@ function CinematicFinish({ reducedMotion }: Pick<FlightSceneProps, 'reducedMotio
   );
 }
 
-export default function KiteCircuitScene({ flightDistance, nitro, onNitroChange, onResolve, player, reducedMotion, runId, runState, scoreRef, target }: FlightSceneProps) {
-  const gates = useMemo(() => GATE_STARTS.map((z, sequence) => ({ z, sequence, cycle: 0 })), []);
+export default function KiteCircuitScene({ flightDistance, nitro, onNitroChange, player, reducedMotion, runId, runState, target }: FlightSceneProps) {
+  const gates = useMemo(() => GATE_STARTS.map((z, sequence) => ({ z, sequence })), []);
 
   useEffect(() => {
-    gates.forEach((gate, index) => { gate.z = GATE_STARTS[index]; gate.cycle = 0; });
+    gates.forEach((gate, index) => { gate.z = GATE_STARTS[index]; });
     player.current = { x: 0, y: KITE_HOME_Y };
     target.current = { x: 0, y: KITE_HOME_Y };
   }, [gates, player, runId, target]);
 
   return (
     <>
-      <CinematicCamera flightDistance={flightDistance} nitro={nitro} onNitroChange={onNitroChange} reducedMotion={reducedMotion} runState={runState} scoreRef={scoreRef} />
+      <CinematicCamera flightDistance={flightDistance} nitro={nitro} onNitroChange={onNitroChange} reducedMotion={reducedMotion} runState={runState} />
       <RendererSettings />
       <color attach="background" args={['#000000']} />
       <Sky />
@@ -117,7 +121,7 @@ export default function KiteCircuitScene({ flightDistance, nitro, onNitroChange,
       <Suspense fallback={null}>
         <CloudBanks flightDistance={flightDistance} nitro={nitro} reducedMotion={reducedMotion} runState={runState} />
       </Suspense>
-      {gates.map((gate, index) => <Gates key={index} gate={gate} flightDistance={flightDistance} runState={runState} onResolve={onResolve} />)}
+      {gates.map((gate, index) => <Gates key={index} gate={gate} flightDistance={flightDistance} runState={runState} />)}
       <BoostTrail flightDistance={flightDistance} nitro={nitro} player={player} reducedMotion={reducedMotion} runState={runState} />
       <PaperPlane flightDistance={flightDistance} nitro={nitro} player={player} reducedMotion={reducedMotion} target={target} />
       <CinematicFinish reducedMotion={reducedMotion} />
