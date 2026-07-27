@@ -10,6 +10,7 @@
     "lint": "echo 'Linting skipped - Next.js 16 compatibility'"
   },
   "dependencies": {
+    "@microsoft/clarity": "^1.0.2",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.4.0",
     "@react-three/postprocessing": "^3.0.4",
