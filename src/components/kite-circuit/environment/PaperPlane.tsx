@@ -1,30 +1,36 @@
 'use client';
 
 import { useGLTF } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Suspense, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { KITE_HOME_Y, KITE_MAX_Y, KITE_MIN_Y } from '../course';
+import { KITE_HOME_Y, KITE_LIMIT_X, KITE_MAX_Y, KITE_MIN_Y } from '../course';
 import type { NitroState } from '../types';
 
 type PaperPlaneProps = {
   flightDistance: React.MutableRefObject<number>;
+  horizontalLimit: React.MutableRefObject<number>;
   nitro: React.MutableRefObject<NitroState>;
   player: React.MutableRefObject<{ x: number; y: number }>;
   reducedMotion: boolean;
   target: React.MutableRefObject<{ x: number; y: number }>;
 };
 
-export default function PaperPlane({ flightDistance, nitro, player, reducedMotion, target }: PaperPlaneProps) {
+export default function PaperPlane({ flightDistance, horizontalLimit, nitro, player, reducedMotion, target }: PaperPlaneProps) {
   const group = useRef<THREE.Group>(null);
   const previousPosition = useRef(new THREE.Vector2(0, KITE_HOME_Y));
+  const { size } = useThree();
 
   useFrame(({ clock }, delta) => {
     if (!group.current) return;
     const ease = 1 - Math.exp(-delta * 11.5);
     const boostIntensity = nitro.current.active ? nitro.current.intensity : 0;
+    const viewportLimit = Math.min(KITE_LIMIT_X, Math.max(1.3, (size.width / Math.max(size.height, 1)) * 3.35));
+    const activeHorizontalLimit = Math.min(horizontalLimit.current, viewportLimit);
+    target.current.x = THREE.MathUtils.clamp(target.current.x, -activeHorizontalLimit, activeHorizontalLimit);
     group.current.position.x += (target.current.x - group.current.position.x) * ease;
     group.current.position.y += (target.current.y - group.current.position.y) * ease;
+    group.current.position.x = THREE.MathUtils.clamp(group.current.position.x, -activeHorizontalLimit, activeHorizontalLimit);
     group.current.position.y = THREE.MathUtils.clamp(group.current.position.y, KITE_MIN_Y, KITE_MAX_Y);
     group.current.position.z = -flightDistance.current - 0.88 * boostIntensity;
     const horizontalVelocity = (group.current.position.x - previousPosition.current.x) / Math.max(delta, 0.001);

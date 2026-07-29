@@ -18,6 +18,7 @@ import type { GateState, NitroState, ObstacleState, RunState } from './types';
 
 type FlightSceneProps = {
   flightDistance: React.MutableRefObject<number>;
+  horizontalLimit: React.MutableRefObject<number>;
   nitro: React.MutableRefObject<NitroState>;
   onCrash: () => void;
   onBoostChange: (active: boolean) => void;
@@ -106,7 +107,7 @@ function CinematicFinish({ reducedMotion }: Pick<FlightSceneProps, 'reducedMotio
   );
 }
 
-export default function KiteCircuitScene({ flightDistance, nitro, onBoostChange, onCrash, onNitroChange, player, reducedMotion, runId, runState, target }: FlightSceneProps) {
+export default function KiteCircuitScene({ flightDistance, horizontalLimit, nitro, onBoostChange, onCrash, onNitroChange, player, reducedMotion, runId, runState, target }: FlightSceneProps) {
   const gates = useMemo(() => GATE_STARTS.map((z, sequence) => ({ z, sequence })), []);
   const obstacles = useMemo<ObstacleState[]>(
     () =>
@@ -145,7 +146,7 @@ export default function KiteCircuitScene({ flightDistance, nitro, onBoostChange,
       <Obstacles flightDistance={flightDistance} obstacles={obstacles} runState={runState} />
       <CollisionSystem flightDistance={flightDistance} nitro={nitro} obstacles={obstacles} player={player} runState={runState} onCrash={onCrash} />
       <BoostTrail flightDistance={flightDistance} nitro={nitro} player={player} reducedMotion={reducedMotion} runState={runState} />
-      <PaperPlane flightDistance={flightDistance} nitro={nitro} player={player} reducedMotion={reducedMotion} target={target} />
+      <PaperPlane flightDistance={flightDistance} horizontalLimit={horizontalLimit} nitro={nitro} player={player} reducedMotion={reducedMotion} target={target} />
       <CinematicFinish reducedMotion={reducedMotion} />
     </>
   );
