@@ -13,7 +13,7 @@ export default function OpenGraphImage() {
         <div style={{ display: "flex", fontSize: 38, color: "#3f3f46" }}>Web applications, automation, and interactive experiences.</div>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 26, fontWeight: 600 }}>
-        <span>nishaj.me</span>
+        <span>nishaj.zyrodev.in</span>
         <span>nishaj0</span>
       </div>
     </div>,

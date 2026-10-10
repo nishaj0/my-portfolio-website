@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "../../siteUrl";
 import { projects } from "../../data/projects";
 import ProjectsPageContent from "./ProjectsPageContent";
 
@@ -19,9 +20,9 @@ export default function ProjectsPage() {
     "@type": "CollectionPage",
     name: "Selected Projects by Nishaj M",
     description,
-    url: "https://nishaj.me/projects",
-    isPartOf: { "@id": "https://nishaj.me/#website" },
-    about: { "@id": "https://nishaj.me/#person" },
+    url: `${SITE_URL}/projects`,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    about: { "@id": `${SITE_URL}/#person` },
     mainEntity: {
       "@type": "ItemList",
       itemListElement: projects.map((project, index) => ({

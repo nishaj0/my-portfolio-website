@@ -3,6 +3,7 @@ import "../index.css";
 import { Header, CustomCursor } from "../components";
 import { ClarityAnalytics } from "../components/ClarityAnalytics";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { SITE_URL } from "../siteUrl";
 
 export const metadata: Metadata = {
   title: {
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://nishaj.me"),
+  metadataBase: new URL(SITE_URL),
   openGraph: {
     title: "Nishaj M - Full Stack Developer & Designer Portfolio",
     description: "A portfolio of full-stack projects, skills, and experiments by Nishaj M.",
@@ -77,10 +78,10 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "Person",
-        "@id": "https://nishaj.me/#person",
+        "@id": `${SITE_URL}/#person`,
         name: "Nishaj M",
         alternateName: ["Muhammed Nishaj M", "nishaj0"],
-        url: "https://nishaj.me",
+        url: SITE_URL,
         email: "njnishaj0@gmail.com",
         jobTitle: "Full Stack Developer",
         description: "Full-stack software developer and designer building web applications, automation, and interactive experiences.",
@@ -93,12 +94,12 @@ export default function RootLayout({
       },
       {
         "@type": "WebSite",
-        "@id": "https://nishaj.me/#website",
+        "@id": `${SITE_URL}/#website`,
         name: "Nishaj M Portfolio",
-        url: "https://nishaj.me",
+        url: SITE_URL,
         description: "Portfolio of Nishaj M, a full-stack software developer and designer.",
         inLanguage: "en",
-        author: { "@id": "https://nishaj.me/#person" },
+        author: { "@id": `${SITE_URL}/#person` },
       },
     ],
   };

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "../../siteUrl";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Projects - Nishaj M Portfolio",
     description: "Explore all projects by Nishaj M showcasing web development expertise",
-    url: "https://nishaj.me/projects",
+    url: `${SITE_URL}/projects`,
   },
   twitter: {
     title: "Projects - Nishaj M Portfolio",
