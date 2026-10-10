@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../index.css";
 import { Header, CustomCursor } from "../components";
 import { ClarityAnalytics } from "../components/ClarityAnalytics";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   title: {
@@ -49,6 +50,9 @@ export const metadata: Metadata = {
     title: "Nishaj M - Full Stack Developer & Designer Portfolio",
     description: "A portfolio of full-stack projects, skills, and experiments by Nishaj M.",
     creator: "@nishaj0",
+  },
+  verification: {
+    google: "ZSeqXr6pZ_MhszLt684ewOzvCpvutzhfxKTc9W2RgMY",
   },
   robots: {
     index: true,
@@ -112,6 +116,9 @@ export default function RootLayout({
       </head>
       <body>
         <ClarityAnalytics />
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
         <div className="relative">
           <CustomCursor />
           <Header />
